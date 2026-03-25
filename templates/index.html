@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>HelpDesk Simulator</title>
+
+    <!-- ربط بـ style.css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1>HelpDesk Simulator</h1>
+    <p>Système de gestion de support client – Mini Projet EST Agadir</p>
+</header>
+
+<div class="main-container">
+
+    <div class="cards">
+        <div class="card" id="card-tickets">
+            <h2>Gestion des Tickets</h2>
+            <p>Créer, modifier et suivre les demandes clients</p>
+        </div>
+
+        <div class="card" id="card-queue">
+            <h2>File d'attente</h2>
+            <p>Visualiser les tickets en attente de traitement</p>
+        </div>
+
+        <div class="card" id="card-history">
+            <h2>Historique</h2>
+            <p>Consulter les actions réalisées sur les tickets</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Vue générale</h2>
+        <div class="stats-box">
+            <div>Tickets total : {{ nb_tickets }}</div>
+            <div>En file d'attente : {{ nb_file }}</div>
+            <div>Actions dans l'historique : {{ nb_hist }}</div>
+        </div>
+    </div>
+
+    <div class="container" id="section-tickets">
+        <div class="section-title" id="tickets-header">
+            <span>Gestion des Tickets</span>
+            <span class="section-arrow" id="tickets-arrow">▲</span>
+        </div>
+
+        <div id="tickets-content">
+            <h3>Nouveau ticket</h3>
+            <form action="{{ url_for('creer_ticket') }}" method="post">
+                <input type="text" name="client" placeholder="Nom du client" required>
+                <textarea name="description" placeholder="Description" required></textarea>
+                <select name="categorie" required>
+                    <option value="" disabled selected>Choisir la catégorie</option>
+                    <option value="Réseau">Réseau</option>
+                    <option value="Logiciel">Logiciel</option>
+                    <option value="Matériel">Matériel</option>
+                    <option value="Autre">Autre</option>
+                </select>
+                <select name="priorite" required>
+                    <option value="" disabled selected>Choisir la priorité</option>
+                    <option value="faible">Faible</option>
+                    <option value="moyenne">Moyenne</option>
+                    <option value="urgente">Urgente</option>
+                </select>
+                <button type="submit">Ajouter Ticket</button>
+            </form>
+
+            <form action="{{ url_for('supprimer_ticket') }}" method="post">
+                <input type="number" name="ticket_id" min="1" placeholder="ID du ticket à supprimer" required>
+                <button type="submit">Supprimer Ticket</button>
+            </form>
+            <p style="color:#999; font-size:0.9em; margin-top:5px;">
+                <small>Entrez l'ID du ticket à supprimer ou à utiliser pour la résolution.</small>
+            </p>
+
+            <h3>Liste des Tickets</h3>
+            <input type="text" id="search-input" placeholder="Rechercher dans les tickets...">
+            <div id="tickets-list" class="output">
+                {% if tickets %}
+                    {% for t in tickets %}
+                        {{ t }}{% if not loop.last %}\n{% endif %}
+                    {% endfor %}
+                {% else %}
+                    Aucun ticket pour le moment.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="section-queue">
+        <div class="section-title" id="queue-header">
+            <span>File d'attente</span>
+            <span class="section-arrow" id="queue-arrow">▼</span>
+        </div>
+
+        <div id="queue-content" class="hidden">
+            <form action="{{ url_for('traiter_ticket') }}" method="post">
+                <button type="submit">Traiter le prochain ticket</button>
+            </form>
+
+            <h3>État de la File</h3>
+            <div id="queue-output" class="output">
+                {% if file_attente %}
+                    {% for f in file_attente %}
+                        {{ f }}{% if not loop.last %}\n{% endif %}
+                    {% endfor %}
+                {% else %}
+                    Aucun ticket en attente.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="section-history">
+        <div class="section-title" id="history-header">
+            <span>Historique des Actions</span>
+            <span class="section-arrow" id="history-arrow">▼</span>
+        </div>
+
+        <div id="history-content" class="hidden">
+            <form action="{{ url_for('resoudre_ticket') }}" method="post">
+                <input type="number" name="ticket_resolu_id" min="1" placeholder="ID du ticket à résoudre" required>
+                <button type="submit">Marquer comme résolu</button>
+            </form>
+
+            <form action="{{ url_for('vider_historique') }}" method="post">
+                <button type="submit">Vider l'historique</button>
+            </form>
+
+            <h3>Historique des actions</h3>
+            <div id="history-output" class="output">
+                {% if historique %}
+                    {% for h in historique %}
+                        {{ h }}{% if not loop.last %}\n{% endif %}
+                    {% endfor %}
+                {% else %}
+                    Historique vide.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <small>Projet – BAMOUH MAROUA & BELQARS SARA</small>
+    </footer>
+</div>
+
+<!-- ربط بـ script.js -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<script>
+    document.getElementById("card-tickets").onclick = function () {
+        document.getElementById("section-tickets").scrollIntoView({ behavior: "smooth" });
+    };
+    document.getElementById("card-queue").onclick = function () {
+        document.getElementById("section-queue").scrollIntoView({ behavior: "smooth" });
+    };
+    document.getElementById("card-history").onclick = function () {
+        document.getElementById("section-history").scrollIntoView({ behavior: "smooth" });
+    };
+</script>
+</body>
+</html>
